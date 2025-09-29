@@ -1,6 +1,6 @@
 import 'dart:io';
 void main() {
-  print('Välkommen till miniräknaren!');
+  print('Välkommen till kalkylatorn!');
   print('Skriv "exit" när som helst för att avsluta.');
 
   while (true) {
