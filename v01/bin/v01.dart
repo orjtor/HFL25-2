@@ -1,4 +1,5 @@
 import 'dart:io';
+
 void main() {
   print('Välkommen till kalkylatorn!');
   print('Skriv "exit" när som helst för att avsluta.');
@@ -6,18 +7,15 @@ void main() {
   while (true) {
     calculate();
   }
-  
 }
 
 void calculate() {
-
   final num1 = getDoubleInput('Ange det första talet:');
 
   final operation = getOperatorInput('Välj en operation (+, -, *, /):');
 
   final num2 = getDoubleInput('Ange det andra talet:');
 
-  
   double result = 0;
 
   switch (operation) {
@@ -45,34 +43,31 @@ void calculate() {
 }
 
 double getDoubleInput(String prompt) {
+  print(prompt);
 
-	print(prompt);
+  final doubleInput = stdin.readLineSync();
+  if (doubleInput == null || doubleInput.trim().toLowerCase() == 'exit') {
+    exitCalculator();
+  }
 
-	final doubleInput = stdin.readLineSync();
-    if (doubleInput == null || doubleInput.trim().toLowerCase() == 'exit') {
-	  exitCalculator();
-	}
+  final doubleNumber = double.tryParse(doubleInput.trim());
+  if (doubleNumber == null) {
+    print('Kunde inte tolka "$doubleInput" som ett tal.');
+  }
 
-	final doubleNumber = double.tryParse(doubleInput.trim());
-    if (doubleNumber == null) {
-      print('Kunde inte tolka "$doubleInput" som ett tal.');
-    }
-
-	return doubleNumber!;
-	
+  return doubleNumber!;
 }
 
 String getOperatorInput(String prompt) {
+  print(prompt);
 
-	print(prompt);
+  final operation = stdin.readLineSync()!;
 
-	final operation = stdin.readLineSync()!;
+  if (operation == "" || operation.trim().toLowerCase() == 'exit') {
+    exitCalculator();
+  }
 
-	if (operation == "" || operation.trim().toLowerCase() == 'exit') {
-      exitCalculator();
-    }
-
-	return operation;
+  return operation;
 }
 
 Never exitCalculator() {
