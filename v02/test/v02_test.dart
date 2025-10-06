@@ -3,23 +3,37 @@ import 'package:test/test.dart';
 
 void main() {
   group('Hero', () {
-    test('toMap and fromMap', () {
-      final hero = Hero(name: 'Batman', power: 'Money', strength: 85);
+    test('toMap and fromMap (nested)', () {
+      final hero = Superhero(
+        name: 'Batman',
+        powerstats: Powerstats(strength: '85'),
+        appearance: Appearance(gender: 'Male', race: 'Human'),
+        biography: Biography(alignment: 'good'),
+      );
       final map = hero.toMap();
-      expect(map, {'name': 'Batman', 'power': 'Money', 'strength': 85});
+      expect(map, {
+        'name': 'Batman',
+        'powerstats': {'strength': '85'},
+        'appearance': {'gender': 'Male', 'race': 'Human'},
+        'biography': {'alignment': 'good'},
+      });
 
-      final newHero = Hero.fromMap(map);
+      final newHero = Superhero.fromMap(map);
       expect(newHero.name, 'Batman');
-      expect(newHero.power, 'Money');
-      expect(newHero.strength, 85);
+      expect(newHero.powerstats.strength, '85');
+      expect(newHero.appearance.gender, 'Male');
+      expect(newHero.appearance.race, 'Human');
+      expect(newHero.biography?.alignment, 'good');
     });
 
-    test('fromMap with missing fields', () {
-      final map = {'name': 'Superman'};
-      final hero = Hero.fromMap(map);
+    test('fromMap legacy fallback (flat strength)', () {
+      final map = {'name': 'Superman', 'strength': 99};
+      final hero = Superhero.fromMap(map);
       expect(hero.name, 'Superman');
-      expect(hero.power, '');
-      expect(hero.strength, 0);
+      expect(hero.powerstats.strength, '99');
+      expect(hero.appearance.gender, '');
+      expect(hero.appearance.race, '');
+      expect(hero.biography, isNull);
     });
   });
 }

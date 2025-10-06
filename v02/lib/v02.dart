@@ -1,45 +1,24 @@
 import 'dart:io';
 import 'dart:convert';
+import 'models/models.dart';
+export 'models/models.dart';
 
-class Hero {
-  final String name;
-  final String power;
-  final int strength;
-
-  Hero({required this.name, required this.power, required this.strength});
-
-  Map<String, dynamic> toMap() => {
-    'name': name,
-    'power': power,
-    'strength': strength,
-  };
-
-  factory Hero.fromMap(Map<String, dynamic> map) => Hero(
-    name: map['name'] as String? ?? '',
-    power: map['power'] as String? ?? '',
-    strength: (map['strength'] as num?)?.toInt() ?? 0,
-  );
-
-  @override
-  String toString() => '$name ($power), styrka: $strength';
-}
-
-final List<Hero> heroes = [];
-final File _heroesFile = File('heroes.json');
+final List<Superhero> heroes = [];
+final File _heroesFile = File('superheros.json');
 
 void saveHeroes() {
   try {
     final data = heroes.map((h) => h.toMap()).toList();
-    _heroesFile.writeAsStringSync(jsonEncode(data));
+    _heroesFile.writeAsStringSync(jsonEncode(data), encoding: utf8);
   } catch (e) {
-    stderr.writeln('Kunde inte spara heroes.json: $e');
+    stderr.writeln('Kunde inte spara superheros.json: $e');
   }
 }
 
 void loadHeroes() {
   try {
     if (!_heroesFile.existsSync()) return;
-    final content = _heroesFile.readAsStringSync();
+    final content = _heroesFile.readAsStringSync(encoding: utf8);
     if (content.trim().isEmpty) return;
     final raw = jsonDecode(content);
     if (raw is List) {
@@ -47,12 +26,12 @@ void loadHeroes() {
         ..clear()
         ..addAll(
           raw.whereType<Map>().map(
-            (m) => Hero.fromMap(Map<String, dynamic>.from(m)),
+            (m) => Superhero.fromMap(Map<String, dynamic>.from(m)),
           ),
         );
     }
   } catch (e) {
-    stderr.writeln('Kunde inte läsa heroes.json: $e');
+    stderr.writeln('Kunde inte läsa superheros.json: $e');
   }
 }
 
@@ -61,25 +40,68 @@ void addHero() {
     'Namn: ',
     validate: (s) => s.trim().isEmpty ? 'Namn krävs.' : null,
   ).trim();
-  final power = _prompt(
-    'Kraft: ',
-    validate: (s) => s.trim().isEmpty ? 'Kraft krävs.' : null,
-  ).trim();
   final strength = _promptInt('Styrka (0-100): ', min: 0, max: 100);
+  final gender = _prompt(
+    'Kön: ',
+    validate: (s) => s.trim().isEmpty ? 'Kön krävs.' : null,
+  ).trim();
+  final race = _prompt(
+    'Ras: ',
+    validate: (s) => s.trim().isEmpty ? 'Ras krävs.' : null,
+  ).trim();
+  final alignment = _prompt('Alignment (valfritt): ').trim();
 
-  heroes.add(Hero(name: name, power: power, strength: strength));
+  final hero = Superhero(
+    name: name,
+    powerstats: Powerstats(strength: strength.toString()),
+    appearance: Appearance(gender: gender, race: race),
+    biography: alignment.isEmpty ? null : Biography(alignment: alignment),
+  );
+
+  heroes.add(hero);
   saveHeroes();
   print('Hjälte tillagd. Tryck Enter för att fortsätta.');
-  stdin.readLineSync();
+  stdin.readLineSync(encoding: utf8);
 }
 
-void showHeroes() {}
-void searchHero() {}
+void showHeroes() {
+  clearConsole();
+  if (heroes.isEmpty) {
+    print('Inga hjältar ännu.');
+  } else {
+    final sorted = [...heroes]
+      ..sort(
+        (a, b) =>
+            b.powerstats.strengthValue.compareTo(a.powerstats.strengthValue),
+      );
+    for (var i = 0; i < sorted.length; i++) {
+      print('${i + 1}. ${sorted[i]}');
+    }
+  }
+  print('Tryck Enter för att fortsätta.');
+  stdin.readLineSync(encoding: utf8);
+}
+
+void searchHero() {
+  final q = _prompt('Sök namn: ').trim();
+  final results = heroes
+      .where((h) => h.name.toLowerCase().contains(q.toLowerCase()))
+      .toList();
+  if (results.isEmpty) {
+    print('Hittade ingen hjälte med namn "$q".');
+  } else {
+    for (final h in results) {
+      print('Hittad: $h');
+    }
+  }
+  print('Tryck Enter för att fortsätta.');
+  stdin.readLineSync(encoding: utf8);
+}
+
 void clearConsole() {
   if (stdout.supportsAnsiEscapes) {
     // Rensa skärmen och flytta markören till toppen
     stdout.write('\x1B[2J\x1B[3J\x1B[H');
-    // stdout.write('\x1Bc'); // Reset to Initial State (rensa + återställ)
   } else {
     // Fallback om ANSI inte stöds
     print('\n' * 100);
@@ -89,7 +111,7 @@ void clearConsole() {
 String _prompt(String label, {String? Function(String)? validate}) {
   while (true) {
     stdout.write(label);
-    final input = stdin.readLineSync() ?? '';
+    final input = stdin.readLineSync(encoding: utf8) ?? '';
     final error = validate?.call(input);
     if (error == null) return input;
     print(error);
@@ -99,7 +121,7 @@ String _prompt(String label, {String? Function(String)? validate}) {
 int _promptInt(String label, {int? min, int? max}) {
   while (true) {
     stdout.write(label);
-    final s = stdin.readLineSync();
+    final s = stdin.readLineSync(encoding: utf8);
     final v = int.tryParse(s ?? '');
     if (v == null) {
       print('Ange ett heltal.');
