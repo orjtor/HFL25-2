@@ -1,4 +1,7 @@
-class Biography {
+import '../interfaces/i_biography.dart';
+
+class Biography implements IBiography {
+  @override
   final String alignment;
 
   Biography({required this.alignment});

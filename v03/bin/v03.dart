@@ -1,14 +1,14 @@
 import 'dart:io';
 import 'dart:convert';
-import 'package:v02/v02.dart' as v02;
+import 'package:v03/v03.dart' as v03;
 
 void main(List<String> arguments) {
   stdout.encoding = utf8;
   stderr.encoding = utf8;
-  v02.loadHeroes();
+  v03.loadHeroes();
 
   while (true) {
-    v02.clearConsole();
+    v03.clearConsole();
 
     print("1. Lägg till hjälte");
     print("2. Visa hjältar");
@@ -18,13 +18,13 @@ void main(List<String> arguments) {
     final choice = stdin.readLineSync(encoding: utf8);
     switch (choice) {
       case '1':
-        v02.addHero();
+        v03.addHero();
         break;
       case '2':
-        v02.showHeroes();
+        v03.showHeroes();
         break;
       case '3':
-        v02.searchHero();
+        v03.searchHero();
         break;
       case '4':
         print('Avslutar programmet. Hej då!');

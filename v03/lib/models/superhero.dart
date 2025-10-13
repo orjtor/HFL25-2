@@ -1,11 +1,16 @@
+import '../interfaces/i_superhero.dart';
 import 'powerstats.dart';
 import 'appearance.dart';
 import 'biography.dart';
 
-class Superhero {
+class Superhero implements ISuperhero {
+  @override
   final String name;
+  @override
   final Powerstats powerstats;
+  @override
   final Appearance appearance;
+  @override
   final Biography? biography;
 
   Superhero({
@@ -21,6 +26,20 @@ class Superhero {
     'appearance': appearance.toMap(),
     if (biography != null) 'biography': biography!.toMap(),
   };
+
+  Superhero copyWith({
+    String? name,
+    Powerstats? powerstats,
+    Appearance? appearance,
+    Biography? biography,
+  }) {
+    return Superhero(
+      name: name ?? this.name,
+      powerstats: powerstats ?? this.powerstats,
+      appearance: appearance ?? this.appearance,
+      biography: biography ?? this.biography,
+    );
+  }
 
   factory Superhero.fromMap(Map<String, dynamic> map) {
     final name = (map['name'] ?? '').toString();

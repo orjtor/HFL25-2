@@ -1,5 +1,9 @@
-class Appearance {
+import '../interfaces/i_appearance.dart';
+
+class Appearance implements IAppearance {
+  @override
   final String gender;
+  @override
   final String race;
 
   Appearance({required this.gender, required this.race});

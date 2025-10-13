@@ -1,4 +1,7 @@
-class Powerstats {
+import '../interfaces/i_powerstats.dart';
+
+class Powerstats implements IPowerstats {
+  @override
   final String strength;
 
   Powerstats({required this.strength});
