@@ -2,10 +2,11 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:v03/v03.dart' as v03;
 
-void main(List<String> arguments) {
+Future<void> main(List<String> arguments) async {
   stdout.encoding = utf8;
   stderr.encoding = utf8;
-  v03.loadHeroes();
+
+  await v03.loadHeroes();
 
   while (true) {
     v03.clearConsole();
@@ -18,13 +19,13 @@ void main(List<String> arguments) {
     final choice = stdin.readLineSync(encoding: utf8);
     switch (choice) {
       case '1':
-        v03.addHero();
+        await v03.addHero();
         break;
       case '2':
-        v03.showHeroes();
+        await v03.showHeroes();
         break;
       case '3':
-        v03.searchHero();
+        await v03.searchHero();
         break;
       case '4':
         print('Avslutar programmet. Hej då!');
