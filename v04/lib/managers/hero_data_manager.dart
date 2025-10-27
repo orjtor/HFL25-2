@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:v04/managers/hero_data_managing.dart';
 import 'package:v04/models/models.dart';
+import 'package:v04/services/api_service.dart';
 
 class HeroDataManager implements HeroDataManaging {
   // Singleton
@@ -75,6 +76,23 @@ class HeroDataManager implements HeroDataManaging {
     return heroes
         .where((h) => h.name.toLowerCase().contains(lowerQuery))
         .toList();
+  }
+
+  @override
+  Future<List<HeroModel>> searchHeroApi(String query) async {
+    final apiService = ApiService();
+
+    if (!apiService.isConfigured) {
+      stderr.writeln('API inte konfigurerat. Kolla .env filen.');
+      return [];
+    }
+
+    try {
+      return await apiService.searchHeroes(query);
+    } catch (e) {
+      stderr.writeln('API-sökning misslyckades: $e');
+      return [];
+    }
   }
 
   @override
