@@ -197,6 +197,62 @@ Future<void> searchHero() async {
   }
 }
 
+Future<void> searchHeroApi() async {
+  final q = _prompt('Sök namn via API: ').trim();
+
+  if (q.isEmpty) {
+    print('Du måste ange ett sökord.');
+    print('Tryck Enter för att fortsätta.');
+    stdin.readLineSync(encoding: utf8);
+    return;
+  }
+
+  print('Söker via SuperheroAPI...');
+  final results = await _manager.searchHeroApi(q);
+
+  if (results.isEmpty) {
+    print('Hittade ingen hjälte med namn "$q" via API.');
+    print('Tryck Enter för att fortsätta.');
+    stdin.readLineSync(encoding: utf8);
+    return;
+  }
+
+  print('\nAPI-träffar (${results.length} st):');
+  for (var i = 0; i < results.length; i++) {
+    final h = results[i];
+    final align = h.biography?.alignment ?? '';
+    final publisher = h.biography?.publisher ?? '';
+    print(
+      '${i + 1}. ID: ${h.id} | ${h.name} | Str: ${h.powerstats.strength} | $publisher | $align',
+    );
+  }
+
+  while (true) {
+    final input = _prompt(
+      'Välj nummer för detaljer (1-${results.length}) eller 0 för meny: ',
+    ).trim();
+    final choice = int.tryParse(input);
+
+    if (choice == null) {
+      print('Ange ett giltigt nummer.');
+      continue;
+    }
+
+    if (choice == 0) return;
+
+    if (choice < 1 || choice > results.length) {
+      print('Nummer måste vara mellan 1 och ${results.length}.');
+      continue;
+    }
+
+    final hero = results[choice - 1];
+    await _manager.showHero(hero);
+
+    stdin.readLineSync(encoding: utf8);
+    break;
+  }
+}
+
 void clearConsole() {
   if (stdout.supportsAnsiEscapes) {
     stdout.write('\x1B[2J\x1B[3J\x1B[H');

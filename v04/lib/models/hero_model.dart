@@ -79,7 +79,7 @@ class HeroModel implements IHeroModel {
     }
 
     return HeroModel(
-      id: (map['id'] ?? 0) as int,
+      id: int.tryParse(map['id']?.toString() ?? '0') ?? 0,
       name: (map['name'] ?? '').toString(),
       powerstats: Powerstats.fromMap(powerstatsMap),
       appearance: Appearance.fromMap(
