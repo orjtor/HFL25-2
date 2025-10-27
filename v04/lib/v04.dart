@@ -190,7 +190,7 @@ Future<void> searchHero() async {
       continue;
     }
 
-    _manager.showHero(hero);
+    _manager.showHero(hero, true);
 
     stdin.readLineSync(encoding: utf8);
     break;
@@ -246,9 +246,14 @@ Future<void> searchHeroApi() async {
     }
 
     final hero = results[choice - 1];
-    await _manager.showHero(hero);
+    await _manager.showHero(hero, false);
 
-    stdin.readLineSync(encoding: utf8);
+    print('\nVill du spara denna hjälte lokalt? (j/n)');
+    final save = stdin.readLineSync(encoding: utf8)?.toLowerCase().trim();
+    if (save == 'j' || save == 'ja') {
+      await _manager.saveHero(hero);
+    }
+
     break;
   }
 }
