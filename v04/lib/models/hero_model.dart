@@ -12,6 +12,8 @@ class HeroModel implements IHeroModel {
   final int id;
   @override
   final String name;
+  final int? apiId; // Ursprungligt API-ID (null för lokala hjältar)
+  final String source; // "local" eller "api"
   @override
   final Powerstats powerstats;
   @override
@@ -25,7 +27,7 @@ class HeroModel implements IHeroModel {
   @override
   final ImageModel? image;
 
-  const HeroModel({
+  HeroModel({
     required this.id,
     required this.name,
     required this.powerstats,
@@ -34,6 +36,8 @@ class HeroModel implements IHeroModel {
     this.work,
     this.connections,
     this.image,
+    this.apiId,
+    this.source = "local",
   });
 
   @override
@@ -46,6 +50,8 @@ class HeroModel implements IHeroModel {
     if (work != null) 'work': work!.toMap(),
     if (connections != null) 'connections': connections!.toMap(),
     if (image != null) 'image': image!.toMap(),
+    if (apiId != null) 'apiId': apiId,
+    'source': source,
   };
 
   HeroModel copyWith({
@@ -57,6 +63,8 @@ class HeroModel implements IHeroModel {
     Work? work,
     Connections? connections,
     ImageModel? image,
+    int? apiId,
+    String? source,
   }) {
     return HeroModel(
       id: id ?? this.id,
@@ -67,6 +75,8 @@ class HeroModel implements IHeroModel {
       work: work ?? this.work,
       connections: connections ?? this.connections,
       image: image ?? this.image,
+      apiId: apiId ?? this.apiId,
+      source: source ?? this.source,
     );
   }
 
@@ -77,6 +87,9 @@ class HeroModel implements IHeroModel {
     } else if (map.containsKey('strength')) {
       powerstatsMap = {'strength': map['strength'].toString()};
     }
+
+    final originalApiId = int.tryParse(map['id']?.toString() ?? '0') ?? 0;
+    final isFromApi = map['source'] == 'api' || map.containsKey('apiId');
 
     return HeroModel(
       id: int.tryParse(map['id']?.toString() ?? '0') ?? 0,
@@ -97,6 +110,8 @@ class HeroModel implements IHeroModel {
       image: map['image'] != null
           ? ImageModel.fromMap(Map<String, dynamic>.from(map['image']))
           : null,
+      apiId: isFromApi ? (map['apiId'] ?? originalApiId) : null,
+      source: map['source']?.toString() ?? (isFromApi ? 'api' : 'local'),
     );
   }
 

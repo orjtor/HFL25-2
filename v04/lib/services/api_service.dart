@@ -57,12 +57,10 @@ class ApiService {
         if (data['results'] is List) {
           // Multiple results
           final List results = data['results'];
-          return results
-              .map((heroData) => HeroModel.fromMap(heroData))
-              .toList();
+          return results.map((heroData) => _createApiHero(heroData)).toList();
         } else {
           // Single result (shouldn't happen with search, but just in case)
-          return [HeroModel.fromMap(data)];
+          return [_createApiHero(data)];
         }
       } else if (data['response'] == 'error') {
         final errorMsg = data['error'] ?? 'Okänt API-fel';
@@ -95,7 +93,7 @@ class ApiService {
       final data = jsonDecode(response.body);
 
       if (data['response'] == 'success') {
-        return HeroModel.fromMap(data);
+        return _createApiHero(data);
       } else if (data['response'] == 'error') {
         final errorMsg = data['error'] ?? 'Okänt API-fel';
         throw Exception('API-fel: $errorMsg');
@@ -118,5 +116,17 @@ class ApiService {
   String get statusInfo {
     initialize();
     return 'Base URL: $_baseUrl\nAPI Token: ${_apiToken.isEmpty ? "SAKNAS" : "OK"}';
+  }
+
+  /// Create a HeroModel from API data with correct source and apiId
+  HeroModel _createApiHero(Map<String, dynamic> apiData) {
+    final originalId = int.tryParse(apiData['id']?.toString() ?? '0') ?? 0;
+
+    // Add source and apiId to the data
+    final enrichedData = Map<String, dynamic>.from(apiData);
+    enrichedData['source'] = 'api';
+    enrichedData['apiId'] = originalId;
+
+    return HeroModel.fromMap(enrichedData);
   }
 }

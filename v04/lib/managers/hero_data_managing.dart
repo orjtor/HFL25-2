@@ -9,6 +9,6 @@ abstract class HeroDataManaging {
   Future<void> saveHero(HeroModel hero);
   Future<List<HeroModel>> getHeroList();
   Future<List<HeroModel>> searchHero(String query);
-  Future<void> showHero(HeroModel hero);
+  Future<void> showHero(HeroModel hero, bool showFooter);
   Future<List<HeroModel>> searchHeroApi(String query);
 }

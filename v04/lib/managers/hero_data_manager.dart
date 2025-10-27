@@ -57,9 +57,50 @@ class HeroDataManager implements HeroDataManaging {
 
   @override
   Future<void> saveHero(HeroModel hero) async {
-    final heroWithId = hero.copyWith(id: _nextId());
+    // Check for duplicates based on name + publisher
+    if (_isDuplicate(hero)) {
+      final publisher = hero.biography?.publisher ?? "okänd publisher";
+      stderr.writeln('Hjälte "${hero.name}" finns redan ($publisher)');
+      return;
+    }
+
+    final heroWithId = hero.copyWith(
+      id: _nextId(),
+      // Behåll source och apiId som redan är satta
+      source: hero.source,
+      apiId: hero.apiId,
+    );
     heroes.add(heroWithId);
     await save();
+    print('Hjälte "${hero.name}" sparad!');
+  }
+
+  /// Check if hero already exists (same name + publisher)
+  bool _isDuplicate(HeroModel newHero) {
+    final newName = newHero.name.toLowerCase().trim();
+    final newPublisher =
+        newHero.biography?.publisher?.toLowerCase().trim() ?? '';
+
+    return heroes.any((existing) {
+      final existingName = existing.name.toLowerCase().trim();
+      final existingPublisher =
+          existing.biography?.publisher?.toLowerCase().trim() ?? '';
+
+      // Same name and same publisher = duplicate
+      if (newName == existingName && newPublisher == existingPublisher) {
+        return true;
+      }
+
+      // Special case: if from API, check if same apiId
+      if (newHero.source == 'api' &&
+          existing.source == 'api' &&
+          newHero.apiId != null &&
+          existing.apiId != null) {
+        return newHero.apiId == existing.apiId;
+      }
+
+      return false;
+    });
   }
 
   @override
@@ -96,9 +137,11 @@ class HeroDataManager implements HeroDataManaging {
   }
 
   @override
-  Future<void> showHero(HeroModel hero) async {
+  Future<void> showHero(HeroModel hero, bool showFooter) async {
     print('\n====================== Hjältedetaljer ======================');
-    print('ID: ${hero.id}');
+    print(
+      'ID: ${hero.id} | Källa: ${hero.source} ${hero.apiId != null ? '| API ID: ${hero.apiId}' : ''}',
+    );
     print('Namn: ${hero.name}');
 
     print('\n--- Powerstats ---');
@@ -138,6 +181,9 @@ class HeroDataManager implements HeroDataManaging {
     print('Bild-URL: ${hero.image?.url ?? ''}');
 
     print('==============================================================');
-    print('Tryck Enter för att gå tillbaka till sökresultat.');
+
+    if (showFooter) {
+      print('Tryck Enter för att gå tillbaka till sökresultat.');
+    }
   }
 }
