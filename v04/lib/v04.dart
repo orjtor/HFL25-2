@@ -141,20 +141,59 @@ Future<void> showHeroes() async {
   final list = await _manager.getHeroList();
   if (list.isEmpty) {
     print('Inga hjältar ännu.');
+    print('Tryck Enter för att fortsätta.');
+    stdin.readLineSync(encoding: utf8);
+    return;
+  }
+
+  print('Välj kategori:');
+  print('H - Hjältar (good alignment)');
+  print('S - Skurkar (bad alignment)');
+  print('A - Alla');
+  final choice = stdin.readLineSync(encoding: utf8)?.toLowerCase().trim() ?? '';
+
+  List<HeroModel> filtered;
+  String category;
+
+  switch (choice) {
+    case 'h':
+      filtered = list
+          .where((h) => h.biography?.alignment?.toLowerCase() == 'good')
+          .toList();
+      category = 'Hjältar (good)';
+      break;
+    case 's':
+      filtered = list
+          .where((h) => h.biography?.alignment?.toLowerCase() == 'bad')
+          .toList();
+      category = 'Skurkar (bad)';
+      break;
+    case 'a':
+      filtered = list;
+      category = 'Alla hjältar';
+      break;
+    default:
+      print('Ogiltigt val, visar alla.');
+      filtered = list;
+      category = 'Alla hjältar';
+  }
+
+  if (filtered.isEmpty) {
+    print('Inga hjältar hittades i kategorin "$category".');
   } else {
-    final sorted = [...list]
+    final sorted = [...filtered]
       ..sort(
         (a, b) =>
             b.powerstats.strengthValue.compareTo(a.powerstats.strengthValue),
       );
-    print('=== Hjältar (sorterade på styrka) ===\n');
+    print('\n=== $category (sorterade på styrka) ===\n');
     for (var i = 0; i < sorted.length; i++) {
       print(
         '${i + 1}. ID: ${sorted[i].id} | ${sorted[i].name} | Str: ${sorted[i].powerstats.strength} | ${sorted[i].biography?.publisher ?? ''} | ${sorted[i].biography?.alignment ?? ''}',
       );
     }
   }
-  print('Tryck Enter för att fortsätta.');
+  print('\nTryck Enter för att fortsätta.');
   stdin.readLineSync(encoding: utf8);
 }
 
