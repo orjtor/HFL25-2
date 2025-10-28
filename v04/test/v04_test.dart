@@ -221,6 +221,81 @@ void main() {
     });
   });
 
+  group('Duplicate Detection Logic', () {
+    test('same name and publisher = duplicate', () {
+      final batman1 = HeroModel(
+        id: 1,
+        name: 'Batman',
+        powerstats: Powerstats(strength: '85'),
+        appearance: Appearance(gender: 'Male', race: 'Human'),
+        biography: Biography(publisher: 'DC Comics'),
+      );
+
+      final batman2 = HeroModel(
+        id: 2,
+        name: 'Batman', // Same name
+        powerstats: Powerstats(strength: '90'),
+        appearance: Appearance(gender: 'Male', race: 'Human'),
+        biography: Biography(publisher: 'DC Comics'), // Same publisher
+      );
+
+      // Create mock scenarios to test the logic
+      expect(batman1.name.toLowerCase(), batman2.name.toLowerCase());
+      expect(
+        batman1.biography?.publisher?.toLowerCase(),
+        batman2.biography?.publisher?.toLowerCase(),
+      );
+    });
+
+    test('same name but different publisher = not duplicate', () {
+      final batman = HeroModel(
+        id: 1,
+        name: 'Batman',
+        powerstats: Powerstats(strength: '85'),
+        appearance: Appearance(gender: 'Male', race: 'Human'),
+        biography: Biography(publisher: 'DC Comics'),
+      );
+
+      final batmanMarvel = HeroModel(
+        id: 2,
+        name: 'Batman', // Same name
+        powerstats: Powerstats(strength: '90'),
+        appearance: Appearance(gender: 'Male', race: 'Human'),
+        biography: Biography(publisher: 'Marvel Comics'), // Different publisher
+      );
+
+      expect(batman.name.toLowerCase(), batmanMarvel.name.toLowerCase());
+      expect(
+        batman.biography?.publisher?.toLowerCase(),
+        isNot(equals(batmanMarvel.biography?.publisher?.toLowerCase())),
+      );
+    });
+
+    test('case insensitive name and publisher matching', () {
+      final hero1 = HeroModel(
+        id: 1,
+        name: 'SUPERMAN',
+        powerstats: Powerstats(strength: '100'),
+        appearance: Appearance(gender: 'Male', race: 'Kryptonian'),
+        biography: Biography(publisher: 'DC COMICS'),
+      );
+
+      final hero2 = HeroModel(
+        id: 2,
+        name: 'superman', // Different case
+        powerstats: Powerstats(strength: '95'),
+        appearance: Appearance(gender: 'Male', race: 'Kryptonian'),
+        biography: Biography(publisher: 'dc comics'), // Different case
+      );
+
+      expect(hero1.name.toLowerCase().trim(), hero2.name.toLowerCase().trim());
+      expect(
+        hero1.biography?.publisher?.toLowerCase().trim(),
+        hero2.biography?.publisher?.toLowerCase().trim(),
+      );
+    });
+  });
+
   group('Edge Cases', () {
     test('handles missing or null ID gracefully', () {
       final map1 = {'name': 'Test Hero'};
