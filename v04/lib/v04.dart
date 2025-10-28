@@ -147,8 +147,11 @@ Future<void> showHeroes() async {
         (a, b) =>
             b.powerstats.strengthValue.compareTo(a.powerstats.strengthValue),
       );
+    print('=== Hjältar (sorterade på styrka) ===\n');
     for (var i = 0; i < sorted.length; i++) {
-      print('${i + 1}. ${sorted[i]}');
+      print(
+        '${i + 1}. ID: ${sorted[i].id} | ${sorted[i].name} | Str: ${sorted[i].powerstats.strength} | ${sorted[i].biography?.publisher ?? ''} | ${sorted[i].biography?.alignment ?? ''}',
+      );
     }
   }
   print('Tryck Enter för att fortsätta.');
@@ -166,11 +169,13 @@ Future<void> searchHero() async {
     return;
   }
 
-  print('\nTräffar:');
-  for (final h in results) {
+  print('\n=== Sökresultat i fil ===');
+  for (var i = 0; i < results.length; i++) {
+    final h = results[i];
     final align = h.biography?.alignment ?? '';
+    final publisher = h.biography?.publisher ?? '';
     print(
-      'ID: ${h.id} | Namn: ${h.name} | Styrka: ${h.powerstats.strength} | Align: $align',
+      '${i + 1}. ID: ${h.id} | ${h.name} | Str: ${h.powerstats.strength} | $publisher | $align',
     );
   }
 
@@ -190,10 +195,22 @@ Future<void> searchHero() async {
       continue;
     }
 
-    _manager.showHero(hero, true);
+    await _manager.showHero(hero, false);
 
-    stdin.readLineSync(encoding: utf8);
-    break;
+    print('\nTryck Enter för meny eller R för radera:');
+    final choice =
+        stdin.readLineSync(encoding: utf8)?.toLowerCase().trim() ?? '';
+
+    if (choice == 'r') {
+      final deleted = await _manager.deleteHero(hero);
+      if (deleted) {
+        print('Tryck Enter för att fortsätta.');
+        stdin.readLineSync(encoding: utf8);
+      }
+    }
+
+    // Alla andra val (inklusive Enter) går tillbaka till meny
+    return;
   }
 }
 
@@ -217,7 +234,7 @@ Future<void> searchHeroApi() async {
     return;
   }
 
-  print('\nAPI-träffar (${results.length} st):');
+  print('\n=== API-träffar (${results.length} st) ===');
   for (var i = 0; i < results.length; i++) {
     final h = results[i];
     final align = h.biography?.alignment ?? '';
