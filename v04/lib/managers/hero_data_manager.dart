@@ -186,4 +186,19 @@ class HeroDataManager implements HeroDataManaging {
       print('Tryck Enter för att gå tillbaka till sökresultat.');
     }
   }
+
+  @override
+  Future<bool> deleteHero(HeroModel hero) async {
+    final originalLength = heroes.length;
+    heroes.removeWhere((h) => h.id == hero.id);
+    final removed = heroes.length < originalLength;
+
+    if (removed) {
+      await save();
+      print('Hjälte "${hero.name}" borttagen.');
+    } else {
+      print('Hjälte "${hero.name}" hittades inte.');
+    }
+    return removed;
+  }
 }
